@@ -8,7 +8,7 @@ MAINTAINER David Winters <dwinters@c2b2.co.uk>
 ENV PAYARA_PKG http://repository.sonatype.org/service/local/artifact/maven/redirect?r=central-proxy&g=fish.payara.extras&a=payara-micro&v=LATEST
 ENV PKG_FILE_NAME payara-micro.jar
 
-#Install packages on ubuntu base image
+# Install packages on ubuntu base image
 
 RUN \
  apt-get update && \ 
@@ -40,4 +40,3 @@ RUN chown -R payara:payara /opt
 USER payara
 WORKDIR /opt
 ENTRYPOINT ["java", "-jar", "payara-micro.jar", "--deploymentDir", "/opt/payara-micro-wars"]
-

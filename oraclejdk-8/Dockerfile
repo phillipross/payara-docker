@@ -5,10 +5,10 @@ FROM ubuntu
 # ----------
 MAINTAINER David Winters <dwinters@c2b2.co.uk>
 
-ENV PAYARA_PKG https://s3-eu-west-1.amazonaws.com/payara.co/Payara+Downloads/payara-4.1.152.1.zip
-ENV PKG_FILE_NAME payara-4.1.152.1.zip
+ENV PAYARA_PKG https://s3-eu-west-1.amazonaws.com/payara.co/Payara+Downloads/Payara+4.1.1.154/payara-4.1.1.154.zip
+ENV PKG_FILE_NAME payara-4.1.1.154.zip
 
-#Instal packages on ubuntu base image
+# Install packages on ubuntu base image
 
 RUN \
  apt-get update && \ 
@@ -43,14 +43,18 @@ USER payara
 WORKDIR /opt/payara41/glassfish/bin
 
 # User: admin / Pass: glassfish
-RUN echo "admin;{SSHA256}80e0NeB6XBWXsIPa7pT54D9JZ5DR5hGQV1kN1OAsgJePNXY6Pl0EIw==;asadmin" > /opt/payara41/glassfish/domains/payaradomain/config/admin-keyfile
-RUN echo "AS_ADMIN_PASSWORD=glassfish" > pwdfile
+RUN \
+  echo "AS_ADMIN_PASSWORD=glassfish" > pwdfile && \
+  for D in domain1 payaradomain; do \
+     echo "admin;{SSHA256}80e0NeB6XBWXsIPa7pT54D9JZ5DR5hGQV1kN1OAsgJePNXY6Pl0EIw==;asadmin" > /opt/payara41/glassfish/domains/${D}/config/admin-keyfile ; \
+  done
 
 # enable secure admin to access DAS remotely. Note we are using the domain payaradomain
 RUN \
-  ./asadmin start-domain payaradomain && \
-  ./asadmin --user admin --passwordfile pwdfile enable-secure-admin && \
-  ./asadmin stop-domain payaradomain
+  for D in domain1 payaradomain; do \
+     ./asadmin start-domain ${D} && \
+     ./asadmin --user admin --passwordfile pwdfile enable-secure-admin && \
+     ./asadmin stop-domain ${D} ; \
+  done
 
 RUN echo "export PATH=$PATH:/opt/payara41/glassfish/bin" >> /opt/payara/.bashrc
-
